@@ -23,3 +23,5 @@ VERIFICATION_TIMEOUT = 600  # 10 minutes in seconds
 # Email configuration
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
+DEV_MODE = os.getenv("DEV_MODE", "True").lower() == "true"

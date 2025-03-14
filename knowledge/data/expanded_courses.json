@@ -1,0 +1,387 @@
+[
+    {
+        "course_code": "IS621",
+        "title": "Agile and DevSecOps",
+        "description": "A comprehensive course exploring agile methodologies, DevSecOps practices, and modern software development lifecycles.",
+        "instructor": "Dr. Smith",
+        "credits": 3,
+        "prerequisites": ["Basic software development knowledge"],
+        "syllabus": [
+            {
+                "week": 1,
+                "topic": "Introduction to Agile Methodologies",
+                "learning_objectives": [
+                    "Understand the core principles of Agile",
+                    "Compare traditional and Agile development approaches",
+                    "Explore the Agile Manifesto"
+                ]
+            },
+            {
+                "week": 2,
+                "topic": "Scrum Framework",
+                "learning_objectives": [
+                    "Learn Scrum roles and responsibilities",
+                    "Understand sprint planning and execution",
+                    "Practice user story creation"
+                ]
+            },
+            {
+                "week": 3,
+                "topic": "DevOps Foundations",
+                "learning_objectives": [
+                    "Understand DevOps culture and principles",
+                    "Explore continuous integration and continuous deployment",
+                    "Introduction to infrastructure as code"
+                ]
+            },
+            {
+                "week": 4,
+                "topic": "Security in Software Development",
+                "learning_objectives": [
+                    "Implement security practices in development",
+                    "Understand threat modeling",
+                    "Learn about secure coding practices"
+                ]
+            },
+            {
+                "week": 5,
+                "topic": "Advanced DevSecOps Practices",
+                "learning_objectives": [
+                    "Implement automated security testing",
+                    "Explore container security",
+                    "Understand cloud security principles"
+                ]
+            }
+        ],
+        "faqs": [
+            {
+                "question": "What tools will we use in this course?",
+                "answer": "We'll use Jira for project management, Git for version control, Jenkins for CI/CD, and various security testing tools like SonarQube and OWASP ZAP."
+            },
+            {
+                "question": "Is prior DevOps experience required?",
+                "answer": "No prior DevOps experience is required. The course is designed to take students from beginner to advanced levels."
+            },
+            {
+                "question": "What is the main project for this course?",
+                "answer": "Students will develop a software project using Agile methodologies, implementing DevSecOps practices throughout the development lifecycle."
+            },
+            {
+                "question": "How are grades calculated?",
+                "answer": "Grades are based on project deliverables (40%), mid-term assessment (10%), final presentation (25%), and class participation (25%)."
+            },
+            {
+                "question": "What are the key learning outcomes?",
+                "answer": "Students will learn Agile and Scrum practices, DevOps principles, security integration in software development, and hands-on project management skills."
+            }
+        ]
+    },
+    {
+        "course_code": "IS622",
+        "title": "Cloud Computing",
+        "description": "An in-depth exploration of cloud computing technologies, architectures, and best practices for modern enterprise solutions.",
+        "instructor": "Dr. Johnson",
+        "credits": 3,
+        "prerequisites": ["Basic networking and system administration knowledge"],
+        "syllabus": [
+            {
+                "week": 1,
+                "topic": "Cloud Computing Fundamentals",
+                "learning_objectives": [
+                    "Understand cloud computing models",
+                    "Explore IaaS, PaaS, and SaaS",
+                    "Compare cloud service providers"
+                ]
+            },
+            {
+                "week": 2,
+                "topic": "Cloud Architecture Design",
+                "learning_objectives": [
+                    "Design scalable cloud architectures",
+                    "Understand microservices and containerization",
+                    "Learn about cloud migration strategies"
+                ]
+            },
+            {
+                "week": 3,
+                "topic": "Cloud Security and Compliance",
+                "learning_objectives": [
+                    "Implement cloud security best practices",
+                    "Understand compliance requirements",
+                    "Learn about identity and access management"
+                ]
+            },
+            {
+                "week": 4,
+                "topic": "Cloud Performance and Optimization",
+                "learning_objectives": [
+                    "Monitor and optimize cloud resources",
+                    "Implement cost-effective cloud strategies",
+                    "Understand auto-scaling and load balancing"
+                ]
+            },
+            {
+                "week": 5,
+                "topic": "Advanced Cloud Technologies",
+                "learning_objectives": [
+                    "Explore serverless computing",
+                    "Implement cloud-native applications",
+                    "Understand multi-cloud and hybrid cloud strategies"
+                ]
+            }
+        ],
+        "faqs": [
+            {
+                "question": "Which cloud platforms will we learn?",
+                "answer": "The course covers AWS, Azure, and Google Cloud Platform, with a focus on practical skills and certifications."
+            },
+            {
+                "question": "Do I need my own cloud account?",
+                "answer": "We'll provide student credits for cloud platforms. Personal accounts are not mandatory but can be helpful for additional practice."
+            },
+            {
+                "question": "What certifications can this course help me prepare for?",
+                "answer": "The course content aligns with AWS Cloud Practitioner and Azure Fundamentals certification exams."
+            },
+            {
+                "question": "What will be the main project?",
+                "answer": "Students will design and implement a cloud-based application with a focus on scalability, security, and performance."
+            },
+            {
+                "question": "Are there any hardware requirements?",
+                "answer": "A modern laptop with at least 8GB RAM is recommended. Cloud-based labs will be used for most practical exercises."
+            }
+        ]
+    },
+    {
+        "course_code": "IS623",
+        "title": "AI and Machine Learning",
+        "description": "A comprehensive introduction to artificial intelligence and machine learning technologies, covering theoretical foundations and practical applications.",
+        "instructor": "Dr. Zhang",
+        "credits": 3,
+        "prerequisites": ["Basic programming skills", "Fundamental mathematics"],
+        "syllabus": [
+            {
+                "week": 1,
+                "topic": "Machine Learning Foundations",
+                "learning_objectives": [
+                    "Understand machine learning paradigms",
+                    "Explore supervised and unsupervised learning",
+                    "Introduction to Python for machine learning"
+                ]
+            },
+            {
+                "week": 2,
+                "topic": "Data Preprocessing and Feature Engineering",
+                "learning_objectives": [
+                    "Clean and prepare data for machine learning",
+                    "Extract and select relevant features",
+                    "Handle missing and categorical data"
+                ]
+            },
+            {
+                "week": 3,
+                "topic": "Supervised Learning Algorithms",
+                "learning_objectives": [
+                    "Implement regression and classification models",
+                    "Understand decision trees and random forests",
+                    "Learn model evaluation techniques"
+                ]
+            },
+            {
+                "week": 4,
+                "topic": "Neural Networks and Deep Learning",
+                "learning_objectives": [
+                    "Understand neural network architectures",
+                    "Implement basic deep learning models",
+                    "Explore convolutional and recurrent neural networks"
+                ]
+            },
+            {
+                "week": 5,
+                "topic": "Natural Language Processing and AI Applications",
+                "learning_objectives": [
+                    "Implement NLP techniques",
+                    "Explore AI in real-world applications",
+                    "Understand ethical considerations in AI"
+                ]
+            }
+        ],
+        "faqs": [
+            {
+                "question": "What programming language will we use?",
+                "answer": "Python will be the primary language, using libraries like scikit-learn, TensorFlow, and PyTorch."
+            },
+            {
+                "question": "Do I need advanced mathematics background?",
+                "answer": "Basic linear algebra and calculus are helpful. We'll provide mathematical foundations as part of the course."
+            },
+            {
+                "question": "What kind of project will we do?",
+                "answer": "Students will develop a machine learning project solving a real-world problem, from data collection to model deployment."
+            },
+            {
+                "question": "Are there any hardware requirements?",
+                "answer": "A laptop with at least 8GB RAM is recommended. We'll use cloud-based GPU resources for deep learning exercises."
+            },
+            {
+                "question": "What career paths does this course support?",
+                "answer": "This course prepares students for roles in data science, AI engineering, machine learning research, and AI product development."
+            }
+        ]
+    },
+    {
+        "course_code": "IS624",
+        "title": "Cybersecurity and Ethical Hacking",
+        "description": "A comprehensive exploration of cybersecurity principles, defensive strategies, and ethical hacking techniques.",
+        "instructor": "Dr. Rodriguez",
+        "credits": 3,
+        "prerequisites": ["Basic networking knowledge", "Programming fundamentals"],
+        "syllabus": [
+            {
+                "week": 1,
+                "topic": "Cybersecurity Foundations",
+                "learning_objectives": [
+                    "Understand core cybersecurity principles",
+                    "Explore the CIA triad (Confidentiality, Integrity, Availability)",
+                    "Identify common cyber threats"
+                ]
+            },
+            {
+                "week": 2,
+                "topic": "Network Security",
+                "learning_objectives": [
+                    "Implement network security controls",
+                    "Understand firewalls and intrusion detection",
+                    "Learn about VPNs and secure communications"
+                ]
+            },
+            {
+                "week": 3,
+                "topic": "Ethical Hacking Techniques",
+                "learning_objectives": [
+                    "Perform penetration testing",
+                    "Use ethical hacking tools",
+                    "Understand vulnerability assessment"
+                ]
+            },
+            {
+                "week": 4,
+                "topic": "Web Application Security",
+                "learning_objectives": [
+                    "Identify and mitigate web application vulnerabilities",
+                    "Understand OWASP Top 10",
+                    "Implement secure coding practices"
+                ]
+            },
+            {
+                "week": 5,
+                "topic": "Incident Response and Forensics",
+                "learning_objectives": [
+                    "Develop incident response strategies",
+                    "Perform digital forensics",
+                    "Understand legal and ethical considerations"
+                ]
+            }
+        ],
+        "faqs": [
+            {
+                "question": "Do I need special equipment for this course?",
+                "answer": "A laptop with virtualization capabilities is recommended. We'll use virtual machines for hands-on labs."
+            },
+            {
+                "question": "Is this course legal?",
+                "answer": "All activities are strictly ethical and legal. We follow responsible disclosure principles and only test in controlled environments."
+            },
+            {
+                "question": "What tools will we learn?",
+                "answer": "We'll use tools like Kali Linux, Metasploit, Wireshark, Nmap, and various security assessment frameworks."
+            },
+            {
+                "question": "What certifications can this course help with?",
+                "answer": "The course content aligns with CompTIA Security+ and CEH (Certified Ethical Hacker) certification preparation."
+            },
+            {
+                "question": "What is the final project?",
+                "answer": "Students will conduct a comprehensive security assessment of a simulated enterprise network, documenting findings and remediation strategies."
+            }
+        ]
+    },
+    {
+        "course_code": "IS625",
+        "title": "Advanced Data Analytics",
+        "description": "A deep dive into advanced data analytics techniques, covering statistical analysis, predictive modeling, and big data technologies.",
+        "instructor": "Dr. Lee",
+        "credits": 3,
+        "prerequisites": ["Basic statistics", "Programming skills"],
+        "syllabus": [
+            {
+                "week": 1,
+                "topic": "Advanced Statistical Methods",
+                "learning_objectives": [
+                    "Perform advanced statistical analysis",
+                    "Understand hypothesis testing",
+                    "Apply statistical inference techniques"
+                ]
+            },
+            {
+                "week": 2,
+                "topic": "Predictive Analytics",
+                "learning_objectives": [
+                    "Develop predictive models",
+                    "Implement advanced machine learning techniques",
+                    "Understand model evaluation and validation"
+                ]
+            },
+            {
+                "week": 3,
+                "topic": "Big Data Technologies",
+                "learning_objectives": [
+                    "Work with distributed computing frameworks",
+                    "Implement big data processing techniques",
+                    "Use Apache Spark for large-scale data analysis"
+                ]
+            },
+            {
+                "week": 4,
+                "topic": "Data Visualization and Storytelling",
+                "learning_objectives": [
+                    "Create advanced data visualizations",
+                    "Develop data-driven narratives",
+                    "Use tools like Tableau and D3.js"
+                ]
+            },
+            {
+                "week": 5,
+                "topic": "Advanced Analytics Applications",
+                "learning_objectives": [
+                    "Apply analytics in business contexts",
+                    "Develop recommendation systems",
+                    "Understand ethical considerations in data analytics"
+                ]
+            }
+        ],
+        "faqs": [
+            {
+                "question": "What programming languages will we use?",
+                "answer": "Python and R will be the primary languages, with additional tools like SQL and Spark for big data processing."
+            },
+            {
+                "question": "Do I need advanced mathematics background?",
+                "answer": "Advanced statistics and linear algebra knowledge is beneficial. We'll provide comprehensive mathematical foundations."
+            },
+            {
+                "question": "What kind of project will we develop?",
+                "answer": "Students will work on a comprehensive data analytics project, from data collection to advanced predictive modeling and visualization."
+            },
+            {
+                "question": "Are there any hardware requirements?",
+                "answer": "A laptop with at least 16GB RAM is recommended. We'll use cloud-based computing resources for intensive data processing."
+            },
+            {
+                "question": "What career paths does this course support?",
+                "answer": "This course prepares students for roles in data science, business intelligence, predictive analytics, and advanced research positions."
+            }
+        ]
+    }
+]

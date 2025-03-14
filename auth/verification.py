@@ -2,7 +2,7 @@ import random
 import string
 import time
 import sqlite3
-from config import VERIFICATION_TIMEOUT
+from config import VERIFICATION_TIMEOUT, DEV_MODE, EMAIL_USER, EMAIL_PASSWORD
 from db.database import get_connection
 
 #verification

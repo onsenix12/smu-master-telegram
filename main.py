@@ -28,6 +28,11 @@ def main():
 
     # Load courses into database
     load_courses_to_db()
+
+    # Start the dashboard in a separate thread
+    dashboard_thread = threading.Thread(target=start_dashboard)
+    dashboard_thread.daemon = True  # This ensures the thread will exit when the main program exits
+    dashboard_thread.start()
     
     # Create the Updater and pass it your bot's token
     updater = Updater(TELEGRAM_TOKEN)
