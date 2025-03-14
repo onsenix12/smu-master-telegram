@@ -356,7 +356,8 @@
                 "topic": "Advanced Analytics Applications",
                 "learning_objectives": [
                     "Apply analytics in business contexts",
-                    "Develop recommendation systems"
+                    "Develop recommendation systems",
+                    "Understand ethical considerations in data analytics"
                 ]
             }
         ],
