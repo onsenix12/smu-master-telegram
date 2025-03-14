@@ -5,6 +5,7 @@ from auth.verification import start_verification, verify_code, is_user_verified
 from knowledge.manager import get_course_info, search_courses
 from utils.claude_integration import query_claude
 from knowledge.manager import search_courses
+from db.database import get_connection
 from knowledge.manager import get_all_faqs
 
 def start_command(update: Update, context: CallbackContext):
@@ -36,7 +37,9 @@ def help_command(update: Update, context: CallbackContext):
         "/start - Start the bot\n"
         "/help - Show this help message\n"
         "/course [code] - Get information about a course\n"
-        "/verify [email] - Verify with your SMU email\n\n"
+        "/verify [email] - Verify with your SMU email\n"
+        "/reset_verification - Reset your verification status\n"
+        "/faq - Show available FAQs\n"
         "You can also ask me questions directly!"
     )
     
@@ -182,3 +185,32 @@ def faq_command(update: Update, context: CallbackContext):
     response += "\nUse /faq [number] to see a specific answer."
     
     update.message.reply_text(response, parse_mode='Markdown')
+
+def reset_verification_command(update: Update, context: CallbackContext):
+    """Handle the /reset_verification command"""
+    user = update.effective_user
+    user_id = str(user.id)
+    
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
+        UPDATE users 
+        SET is_verified = 0, verification_code = NULL, code_expires_at = NULL
+        WHERE user_id = ?
+        ''', (user_id,))
+        
+        rows_affected = cursor.rowcount
+        conn.commit()
+        
+        if rows_affected > 0:
+            update.message.reply_text("Your verification has been reset. You can now verify again using /verify.")
+        else:
+            update.message.reply_text("Reset failed. User not found in database.")
+            
+    except Exception as e:
+        update.message.reply_text(f"Error resetting verification: {str(e)}")
+    finally:
+        conn.close()
+    

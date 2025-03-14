@@ -5,7 +5,7 @@ from config import TELEGRAM_TOKEN
 from db.database import init_database
 from bot.handlers import (
     start_command, help_command, handle_message, 
-    verify_command, code_command, course_command, faq_command
+    verify_command, code_command, course_command, faq_command, reset_verification_command
 )
 from knowledge.manager import load_courses_to_db
 from bot.staff_commands import add_faq_command, make_staff_command
@@ -44,6 +44,7 @@ def main():
     dispatcher.add_handler(CommandHandler("add_faq", add_faq_command))
     dispatcher.add_handler(CommandHandler("make_staff", make_staff_command))
     dispatcher.add_handler(CommandHandler("faq", faq_command))
+    dispatcher.add_handler(CommandHandler("reset_verification", reset_verification_command))
     
     # Regular message handler
     dispatcher.add_handler(MessageHandler(

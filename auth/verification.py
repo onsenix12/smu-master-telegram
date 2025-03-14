@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 from config import EMAIL_USER, EMAIL_PASSWORD
 
 def send_verification_email(email, code):
-    """Send verification email with code"""
+    """Send verification email with code using Outlook SMTP"""
     subject = "Your SMU Bot Verification Code"
     body = f"Your verification code is: {code}\n\nThis code will expire in 10 minutes."
     
@@ -21,7 +21,7 @@ def send_verification_email(email, code):
     msg['To'] = email
     
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp-mail.outlook.com', 587)
         server.starttls()
         server.login(EMAIL_USER, EMAIL_PASSWORD)
         server.send_message(msg)
@@ -59,11 +59,17 @@ def start_verification(user_id, email):
         
         conn.commit()
         
-        # In a real application, you would send an email here
-        # For this example, we'll pretend the email is sent
-        print(f"Verification code for {email}: {code}")
+        # Send the verification email
+        email_sent = send_verification_email(email, code)
         
-        return True, "Verification code sent to your email. Please check your inbox."
+        # Provide feedback based on whether the email was sent
+        if email_sent:
+            return True, "Verification code sent to your email. Please check your inbox."
+        else:
+            # Fallback to console output if email sending fails
+            print(f"Verification code for {email}: {code}")
+            return True, "Could not send email automatically. Check with administrator for verification code."
+            
     except Exception as e:
         return False, f"Error starting verification: {str(e)}"
     finally:
