@@ -1,0 +1,20 @@
+[
+    {
+      "course_code": "IS621",
+      "title": "Agile and DevSecOps",
+      "description": "This course covers agile methodologies and DevSecOps practices for modern software development. Topics include user stories, sprint planning, continuous integration, and security in the development pipeline.",
+      "instructor": "Dr. Smith"
+    },
+    {
+      "course_code": "IS622",
+      "title": "Cloud Computing",
+      "description": "This course explores cloud computing concepts, architectures, and technologies. Students will learn about IaaS, PaaS, SaaS, containerization, and cloud security practices.",
+      "instructor": "Dr. Johnson"
+    },
+    {
+      "course_code": "IS623",
+      "title": "AI and Machine Learning",
+      "description": "This course introduces artificial intelligence and machine learning concepts and applications. Topics include supervised and unsupervised learning, neural networks, and natural language processing.",
+      "instructor": "Dr. Zhang"
+    }
+  ]

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="container">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/users">Users</a>
+            <a href="/faqs">FAQs</a>
+            <a href="/logout" style="float:right">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="number">{{ user_count }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Verified Users</h3>
+                <div class="number">{{ verified_count }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Conversations</h3>
+                <div class="number">{{ conversation_count }}</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Recent Conversations</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Message</th>
+                        <th>Response</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conv in recent_conversations %}
+                    <tr>
+                        <td>{{ conv.first_name }}</td>
+                        <td>{{ conv.message }}</td>
+                        <td>{{ conv.response }}</td>
+                        <td>{{ conv.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
