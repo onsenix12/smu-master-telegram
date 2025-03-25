@@ -3,7 +3,7 @@
     "configurations": [
       {
         "name": "All Tests",
-        "type": "python",
+        "type": "debugpy",
         "request": "launch",
         "module": "pytest",
         "args": [
@@ -13,7 +13,7 @@
       },
       {
         "name": "Integration Tests Only",
-        "type": "python",
+        "type": "debugpy",
         "request": "launch",
         "module": "pytest",
         "args": [
@@ -23,7 +23,7 @@
       },
       {
         "name": "Unit Tests Only",
-        "type": "python",
+        "type": "debugpy",
         "request": "launch",
         "module": "pytest",
         "args": [
