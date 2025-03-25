@@ -1,6 +1,6 @@
 import json
 import os
-from db.database import get_connection
+from db.connection import DatabaseConnection
 
 def load_courses_to_db():
     """Load course data from JSON to database"""
@@ -21,36 +21,32 @@ def load_courses_to_db():
         courses = json.load(file)
     
     # Connect to database
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    # Insert courses into database
-    for course in courses:
-        cursor.execute('''
-        INSERT OR REPLACE INTO courses (course_code, title, description, instructor)
-        VALUES (?, ?, ?, ?)
-        ''', (
-            course['course_code'],
-            course['title'], 
-            course['description'],
-            course['instructor']
-        ))
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
         
-        # Add course FAQs to the faqs table if they exist
-        if 'faqs' in course:
-            for faq in course['faqs']:
-                cursor.execute('''
-                INSERT OR REPLACE INTO faqs (question, answer, added_by)
-                VALUES (?, ?, ?)
-                ''', (
-                    faq['question'],
-                    faq['answer'],
-                    f"System (from course {course['course_code']})"
-                ))
-    
-    # Commit changes
-    conn.commit()
-    conn.close()
+        # Insert courses into database
+        for course in courses:
+            cursor.execute('''
+            INSERT OR REPLACE INTO courses (course_code, title, description, instructor)
+            VALUES (?, ?, ?, ?)
+            ''', (
+                course['course_code'],
+                course['title'], 
+                course['description'],
+                course['instructor']
+            ))
+            
+            # Add course FAQs to the faqs table if they exist
+            if 'faqs' in course:
+                for faq in course['faqs']:
+                    cursor.execute('''
+                    INSERT OR REPLACE INTO faqs (question, answer, added_by)
+                    VALUES (?, ?, ?)
+                    ''', (
+                        faq['question'],
+                        faq['answer'],
+                        f"System (from course {course['course_code']})"
+                    ))
     
     print(f"Loaded {len(courses)} courses into the database")
 
@@ -59,34 +55,32 @@ def get_course_info(course_code):
     # Standardize course code format
     course_code = course_code.upper()
     
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    SELECT * FROM courses WHERE course_code = ?
-    ''', (course_code,))
-    
-    course = cursor.fetchone()
-    
-    if not course:
-        conn.close()
-        return None
-    
-    # Get expanded course info from file
-    expanded_data = get_expanded_course_data(course_code)
-    
-    # Convert basic course to dictionary
-    course_dict = dict(course)
-    
-    # Add expanded data if available
-    if expanded_data:
-        course_dict['credits'] = expanded_data.get('credits')
-        course_dict['prerequisites'] = expanded_data.get('prerequisites')
-        course_dict['syllabus'] = expanded_data.get('syllabus')
-        course_dict['course_faqs'] = expanded_data.get('faqs')
-    
-    conn.close()
-    return course_dict
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        SELECT * FROM courses WHERE course_code = ?
+        ''', (course_code,))
+        
+        course = cursor.fetchone()
+        
+        if not course:
+            return None
+        
+        # Get expanded course info from file
+        expanded_data = get_expanded_course_data(course_code)
+        
+        # Convert basic course to dictionary
+        course_dict = dict(course)
+        
+        # Add expanded data if available
+        if expanded_data:
+            course_dict['credits'] = expanded_data.get('credits')
+            course_dict['prerequisites'] = expanded_data.get('prerequisites')
+            course_dict['syllabus'] = expanded_data.get('syllabus')
+            course_dict['course_faqs'] = expanded_data.get('faqs')
+        
+        return course_dict
 
 def get_expanded_course_data(course_code):
     """Get expanded course data from the JSON file"""
@@ -110,45 +104,40 @@ def get_expanded_course_data(course_code):
 
 def search_courses(query):
     """Search for courses by keyword"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    # Search in title and description
-    cursor.execute('''
-    SELECT * FROM courses 
-    WHERE title LIKE ? OR description LIKE ?
-    ''', (f'%{query}%', f'%{query}%'))
-    
-    courses = cursor.fetchall()
-    conn.close()
-    
-    # Convert to list of dictionaries
-    return [dict(course) for course in courses]
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        # Search in title and description
+        cursor.execute('''
+        SELECT * FROM courses 
+        WHERE title LIKE ? OR description LIKE ?
+        ''', (f'%{query}%', f'%{query}%'))
+        
+        courses = cursor.fetchall()
+        
+        # Convert to list of dictionaries
+        return [dict(course) for course in courses]
 
 def get_all_faqs():
     """Get all FAQs from the database"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT * FROM faqs ORDER BY created_at DESC')
-    
-    faqs = cursor.fetchall()
-    conn.close()
-    
-    # Convert to list of dictionaries
-    return [dict(faq) for faq in faqs]
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM faqs ORDER BY created_at DESC')
+        
+        faqs = cursor.fetchall()
+        
+        # Convert to list of dictionaries
+        return [dict(faq) for faq in faqs]
 
 def add_faq(question, answer, added_by):
     """Add a new FAQ to the database"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    INSERT INTO faqs (question, answer, added_by)
-    VALUES (?, ?, ?)
-    ''', (question, answer, added_by))
-    
-    conn.commit()
-    conn.close()
-    
-    return True
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        INSERT INTO faqs (question, answer, added_by)
+        VALUES (?, ?, ?)
+        ''', (question, answer, added_by))
+        
+        return True

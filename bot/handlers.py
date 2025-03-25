@@ -7,6 +7,8 @@ from utils.claude_integration import query_claude
 from knowledge.manager import search_courses
 from db.database import get_connection
 from knowledge.manager import get_all_faqs
+from db.connection import DatabaseConnection
+from utils.decorators import require_verification
 
 def start_command(update: Update, context: CallbackContext):
     """Handle the /start command"""
@@ -38,21 +40,10 @@ def start_command(update: Update, context: CallbackContext):
             f"Use the command: /verify your.name@smu.edu.sg"
         )
         update.message.reply_text(verification_message)
-    
+
+@require_verification
 def help_command(update: Update, context: CallbackContext):
     """Handle the /help command"""
-    user = update.effective_user
-    user_id = str(user.id)
-    
-    # Check if user is verified
-    if not is_user_verified(user_id):
-        verification_reminder = (
-            "⚠️ Please verify your SMU email first.\n\n"
-            "Use the command: /verify your.name@smu.edu.sg"
-        )
-        update.message.reply_text(verification_reminder)
-        return
-        
     help_message = (
         "🔍 Available commands:\n\n"
         "/start - Start the bot\n"
@@ -67,21 +58,12 @@ def help_command(update: Update, context: CallbackContext):
     
     update.message.reply_text(help_message)
 
+@require_verification
 def handle_message(update: Update, context: CallbackContext):
     """Handle regular text messages"""
     user = update.effective_user
     user_id = str(user.id)
     message_text = update.message.text.strip()
-    
-    # Check if user is verified
-    if not is_user_verified(user_id):
-        # Remind user to verify first
-        verification_reminder = (
-            "⚠️ Please verify your SMU email before using this bot.\n\n"
-            "Use the command: /verify your.name@smu.edu.sg"
-        )
-        update.message.reply_text(verification_reminder)
-        return
     
     # Check if this is a question about course FAQs
     faq_keywords = ['faq', 'question', 'answer', 'frequently asked']
@@ -229,20 +211,9 @@ def code_command(update: Update, context: CallbackContext):
         )
         update.message.reply_text(welcome_message)
 
+@require_verification
 def course_command(update: Update, context: CallbackContext):
     """Handle the /course command"""
-    user = update.effective_user
-    user_id = str(user.id)
-    
-    # Check if user is verified
-    if not is_user_verified(user_id):
-        verification_reminder = (
-            "⚠️ Please verify your SMU email before accessing course information.\n\n"
-            "Use the command: /verify your.name@smu.edu.sg"
-        )
-        update.message.reply_text(verification_reminder)
-        return
-    
     # Check if the course code was provided
     if not context.args or len(context.args) == 0:
         update.message.reply_text(
@@ -293,20 +264,9 @@ def course_command(update: Update, context: CallbackContext):
     # Send with HTML parse mode instead of Markdown
     update.message.reply_text(course_info, parse_mode='HTML')
 
+@require_verification
 def course_faq_command(update: Update, context: CallbackContext):
     """Handle the /course_faq command to show FAQs for a specific course"""
-    user = update.effective_user
-    user_id = str(user.id)
-    
-    # Check if user is verified
-    if not is_user_verified(user_id):
-        verification_reminder = (
-            "⚠️ Please verify your SMU email before accessing course FAQs.\n\n"
-            "Use the command: /verify your.name@smu.edu.sg"
-        )
-        update.message.reply_text(verification_reminder)
-        return
-    
     # Check if the course code was provided
     if not context.args or len(context.args) == 0:
         update.message.reply_text(
@@ -356,20 +316,9 @@ def course_faq_command(update: Update, context: CallbackContext):
     
     update.message.reply_text(response, parse_mode='HTML')
 
+@require_verification
 def faq_command(update: Update, context: CallbackContext):
     """Handle the /faq command"""
-    user = update.effective_user
-    user_id = str(user.id)
-    
-    # Check if user is verified
-    if not is_user_verified(user_id):
-        verification_reminder = (
-            "⚠️ Please verify your SMU email before accessing FAQs.\n\n"
-            "Use the command: /verify your.name@smu.edu.sg"
-        )
-        update.message.reply_text(verification_reminder)
-        return
-    
     # Get FAQs
     faqs = get_all_faqs()
     
@@ -406,25 +355,21 @@ def reset_verification_command(update: Update, context: CallbackContext):
     user = update.effective_user
     user_id = str(user.id)
     
-    conn = get_connection()
-    cursor = conn.cursor()
-    
     try:
-        cursor.execute('''
-        UPDATE users 
-        SET is_verified = 0, verification_code = NULL, code_expires_at = NULL
-        WHERE user_id = ?
-        ''', (user_id,))
-        
-        rows_affected = cursor.rowcount
-        conn.commit()
-        
-        if rows_affected > 0:
-            update.message.reply_text("Your verification has been reset. You can now verify again using /verify.")
-        else:
-            update.message.reply_text("Reset failed. User not found in database.")
+        with DatabaseConnection() as conn:
+            cursor = conn.cursor()
             
+            cursor.execute('''
+            UPDATE users 
+            SET is_verified = 0, verification_code = NULL, code_expires_at = NULL
+            WHERE user_id = ?
+            ''', (user_id,))
+            
+            rows_affected = cursor.rowcount
+            
+            if rows_affected > 0:
+                update.message.reply_text("Your verification has been reset. You can now verify again using /verify.")
+            else:
+                update.message.reply_text("Reset failed. User not found in database.")
     except Exception as e:
         update.message.reply_text(f"Error resetting verification: {str(e)}")
-    finally:
-        conn.close()

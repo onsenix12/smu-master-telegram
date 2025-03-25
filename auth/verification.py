@@ -3,7 +3,7 @@ import string
 import time
 import sqlite3
 from config import VERIFICATION_TIMEOUT, DEV_MODE, EMAIL_USER, EMAIL_PASSWORD
-from db.database import get_connection
+from db.connection import DatabaseConnection
 
 #verification
 import smtplib
@@ -47,17 +47,14 @@ def start_verification(user_id, email):
     expires_at = int(time.time()) + VERIFICATION_TIMEOUT
     
     # Store the code in the database
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    try:
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
         cursor.execute('''
         UPDATE users 
         SET email = ?, verification_code = ?, code_expires_at = ?
         WHERE user_id = ?
         ''', (email, code, expires_at, user_id))
-        
-        conn.commit()
         
         # Send the verification email
         email_sent = send_verification_email(email, code)
@@ -69,18 +66,12 @@ def start_verification(user_id, email):
             # Fallback to console output if email sending fails
             print(f"Verification code for {email}: {code}")
             return True, "Could not send email automatically. Check with administrator for verification code."
-            
-    except Exception as e:
-        return False, f"Error starting verification: {str(e)}"
-    finally:
-        conn.close()
 
 def verify_code(user_id, code):
     """Verify a user's verification code"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    try:
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
         # Get the user's verification info
         cursor.execute('''
         SELECT verification_code, code_expires_at, email
@@ -112,20 +103,13 @@ def verify_code(user_id, code):
         WHERE user_id = ?
         ''', (user_id,))
         
-        conn.commit()
-        
         return True, f"Email {email} verified successfully!"
-    except Exception as e:
-        return False, f"Error verifying code: {str(e)}"
-    finally:
-        conn.close()
 
 def is_user_verified(user_id):
     """Check if a user is verified"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    try:
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
         cursor.execute('SELECT is_verified FROM users WHERE user_id = ?', (user_id,))
         result = cursor.fetchone()
         
@@ -133,7 +117,3 @@ def is_user_verified(user_id):
             return False
             
         return bool(result['is_verified'])
-    except Exception:
-        return False
-    finally:
-        conn.close()

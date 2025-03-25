@@ -11,14 +11,15 @@ if not TELEGRAM_TOKEN:
 CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 
 # Database configuration
-DATABASE_PATH = "bot.db"
+DATABASE_PATH = os.getenv("DATABASE_PATH", "bot.db")
 
 # Dashboard configuration
 DASHBOARD_USERNAME = os.getenv("DASHBOARD_USERNAME", "admin")
 DASHBOARD_PASSWORD = os.getenv("DASHBOARD_PASSWORD", "password")
+DASHBOARD_SECRET_KEY = os.getenv("DASHBOARD_SECRET_KEY", "your_secure_secret_key")  # Add this line
 
 # Email verification settings
-VERIFICATION_TIMEOUT = 600  # 10 minutes in seconds
+VERIFICATION_TIMEOUT = int(os.getenv("VERIFICATION_TIMEOUT", "600"))  # 10 minutes in seconds
 
 # Email configuration
 EMAIL_USER = os.getenv("EMAIL_USER")

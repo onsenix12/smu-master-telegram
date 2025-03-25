@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import os
-from db.database import get_connection
-from config import DASHBOARD_USERNAME, DASHBOARD_PASSWORD
+from db.connection import DatabaseConnection
+from config import DASHBOARD_USERNAME, DASHBOARD_PASSWORD, DASHBOARD_SECRET_KEY
 
 # Create Flask app
 app = Flask(__name__, 
@@ -9,7 +9,7 @@ app = Flask(__name__,
             static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
 # Set secret key for session
-app.secret_key = 'your_secret_key_here'  # In production, use a proper secure key
+app.secret_key = DASHBOARD_SECRET_KEY  # Use value from config
 
 @app.route('/')
 def home():
@@ -47,32 +47,30 @@ def dashboard():
         return redirect(url_for('login'))
     
     # Get statistics from database
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    # Get user count
-    cursor.execute('SELECT COUNT(*) as count FROM users')
-    user_count = cursor.fetchone()['count']
-    
-    # Get verified user count
-    cursor.execute('SELECT COUNT(*) as count FROM users WHERE is_verified = 1')
-    verified_count = cursor.fetchone()['count']
-    
-    # Get conversation count
-    cursor.execute('SELECT COUNT(*) as count FROM conversations')
-    conversation_count = cursor.fetchone()['count']
-    
-    # Get recent conversations
-    cursor.execute('''
-    SELECT c.message, c.response, c.timestamp, u.first_name
-    FROM conversations c
-    JOIN users u ON c.user_id = u.user_id
-    ORDER BY c.timestamp DESC
-    LIMIT 10
-    ''')
-    recent_conversations = cursor.fetchall()
-    
-    conn.close()
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        # Get user count
+        cursor.execute('SELECT COUNT(*) as count FROM users')
+        user_count = cursor.fetchone()['count']
+        
+        # Get verified user count
+        cursor.execute('SELECT COUNT(*) as count FROM users WHERE is_verified = 1')
+        verified_count = cursor.fetchone()['count']
+        
+        # Get conversation count
+        cursor.execute('SELECT COUNT(*) as count FROM conversations')
+        conversation_count = cursor.fetchone()['count']
+        
+        # Get recent conversations
+        cursor.execute('''
+        SELECT c.message, c.response, c.timestamp, u.first_name
+        FROM conversations c
+        JOIN users u ON c.user_id = u.user_id
+        ORDER BY c.timestamp DESC
+        LIMIT 10
+        ''')
+        recent_conversations = cursor.fetchall()
     
     return render_template('dashboard.html',
                           user_count=user_count,
@@ -86,17 +84,16 @@ def users():
     if 'logged_in' not in session:
         return redirect(url_for('login'))
     
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    SELECT user_id, username, first_name, email, is_verified, is_staff
-    FROM users
-    ORDER BY created_at DESC
-    ''')
-    
-    users = cursor.fetchall()
-    conn.close()
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        SELECT user_id, username, first_name, email, is_verified, is_staff
+        FROM users
+        ORDER BY created_at DESC
+        ''')
+        
+        users = cursor.fetchall()
     
     return render_template('users.html', users=users)
 
@@ -106,18 +103,17 @@ def faqs():
     if 'logged_in' not in session:
         return redirect(url_for('login'))
     
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    SELECT f.id, f.question, f.answer, f.created_at, u.first_name
-    FROM faqs f
-    LEFT JOIN users u ON f.added_by = u.user_id
-    ORDER BY f.created_at DESC
-    ''')
-    
-    faqs = cursor.fetchall()
-    conn.close()
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        SELECT f.id, f.question, f.answer, f.created_at, u.first_name
+        FROM faqs f
+        LEFT JOIN users u ON f.added_by = u.user_id
+        ORDER BY f.created_at DESC
+        ''')
+        
+        faqs = cursor.fetchall()
     
     return render_template('faqs.html', faqs=faqs)
 
