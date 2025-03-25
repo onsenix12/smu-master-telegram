@@ -1,0 +1,3 @@
+[bandit]
+targets: bot,db,knowledge,auth,utils,dashboard
+exclude: /tests
