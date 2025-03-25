@@ -18,20 +18,41 @@ def start_command(update: Update, context: CallbackContext):
     # Save user to database
     save_user(user_id, username, first_name)
     
-    # Welcome message
-    welcome_message = (
-        f"👋 Hi {first_name}! I'm the SMU Master's Program AI Assistant.\n\n"
-        f"I can help you with:\n"
-        f"• Course information\n"
-        f"• Assignments and deadlines\n"
-        f"• Learning materials\n\n"
-        f"Type /help to see all available commands."
-    )
-    
-    update.message.reply_text(welcome_message)
+    # Check if the user is already verified
+    if is_user_verified(user_id):
+        # Welcome message for verified users
+        welcome_message = (
+            f"👋 Hi {first_name}! I'm the SMU Master's Program AI Assistant.\n\n"
+            f"I can help you with:\n"
+            f"• Course information\n"
+            f"• Assignments and deadlines\n"
+            f"• Learning materials\n\n"
+            f"Type /help to see all available commands."
+        )
+        update.message.reply_text(welcome_message)
+    else:
+        # Message for unverified users
+        verification_message = (
+            f"👋 Hi {first_name}! Welcome to the SMU Master's Program AI Assistant.\n\n"
+            f"Before we begin, please verify your SMU email address.\n\n"
+            f"Use the command: /verify your.name@smu.edu.sg"
+        )
+        update.message.reply_text(verification_message)
     
 def help_command(update: Update, context: CallbackContext):
     """Handle the /help command"""
+    user = update.effective_user
+    user_id = str(user.id)
+    
+    # Check if user is verified
+    if not is_user_verified(user_id):
+        verification_reminder = (
+            "⚠️ Please verify your SMU email first.\n\n"
+            "Use the command: /verify your.name@smu.edu.sg"
+        )
+        update.message.reply_text(verification_reminder)
+        return
+        
     help_message = (
         "🔍 Available commands:\n\n"
         "/start - Start the bot\n"
@@ -40,7 +61,7 @@ def help_command(update: Update, context: CallbackContext):
         "/course_faq [code] [number] - View FAQs for a specific course\n"
         "/verify [email] - Verify with your SMU email\n"
         "/reset_verification - Reset your verification status\n"
-        "/faq - Show available FAQs\n"
+        "/faq - Show available FAQs\n\n"
         "You can also ask me questions directly!"
     )
     
@@ -51,6 +72,16 @@ def handle_message(update: Update, context: CallbackContext):
     user = update.effective_user
     user_id = str(user.id)
     message_text = update.message.text.strip()
+    
+    # Check if user is verified
+    if not is_user_verified(user_id):
+        # Remind user to verify first
+        verification_reminder = (
+            "⚠️ Please verify your SMU email before using this bot.\n\n"
+            "Use the command: /verify your.name@smu.edu.sg"
+        )
+        update.message.reply_text(verification_reminder)
+        return
     
     # Check if this is a question about course FAQs
     faq_keywords = ['faq', 'question', 'answer', 'frequently asked']
@@ -136,7 +167,6 @@ def handle_message(update: Update, context: CallbackContext):
     # Use HTML parse mode for consistency
     update.message.reply_text(response, parse_mode='HTML')
 
-# Add these command handlers
 def verify_command(update: Update, context: CallbackContext):
     """Handle the /verify command"""
     user = update.effective_user
@@ -144,7 +174,7 @@ def verify_command(update: Update, context: CallbackContext):
     
     # Check if the user is already verified
     if is_user_verified(user_id):
-        update.message.reply_text("You are already verified! ✅")
+        update.message.reply_text("You are already verified! ✅\n\nYou can use all bot features now.")
         return
     
     # Check if email was provided
@@ -164,7 +194,8 @@ def verify_command(update: Update, context: CallbackContext):
     if success:
         update.message.reply_text(
             "Please enter the code using the /code command.\n"
-            "Example: /code 123456"
+            "Example: /code 123456\n\n"
+            "Once verified, you'll have full access to the bot's features."
         )
 
 def code_command(update: Update, context: CallbackContext):
@@ -185,9 +216,33 @@ def code_command(update: Update, context: CallbackContext):
     # Verify the code
     success, message = verify_code(user_id, verification_code)
     update.message.reply_text(message)
+    
+    if success:
+        # Send welcome message after successful verification
+        welcome_message = (
+            "🎉 Verification successful! You now have full access to all bot features.\n\n"
+            "I can help you with:\n"
+            "• Course information\n"
+            "• Assignments and deadlines\n"
+            "• Learning materials\n\n"
+            "Type /help to see all available commands."
+        )
+        update.message.reply_text(welcome_message)
 
 def course_command(update: Update, context: CallbackContext):
     """Handle the /course command"""
+    user = update.effective_user
+    user_id = str(user.id)
+    
+    # Check if user is verified
+    if not is_user_verified(user_id):
+        verification_reminder = (
+            "⚠️ Please verify your SMU email before accessing course information.\n\n"
+            "Use the command: /verify your.name@smu.edu.sg"
+        )
+        update.message.reply_text(verification_reminder)
+        return
+    
     # Check if the course code was provided
     if not context.args or len(context.args) == 0:
         update.message.reply_text(
@@ -240,6 +295,18 @@ def course_command(update: Update, context: CallbackContext):
 
 def course_faq_command(update: Update, context: CallbackContext):
     """Handle the /course_faq command to show FAQs for a specific course"""
+    user = update.effective_user
+    user_id = str(user.id)
+    
+    # Check if user is verified
+    if not is_user_verified(user_id):
+        verification_reminder = (
+            "⚠️ Please verify your SMU email before accessing course FAQs.\n\n"
+            "Use the command: /verify your.name@smu.edu.sg"
+        )
+        update.message.reply_text(verification_reminder)
+        return
+    
     # Check if the course code was provided
     if not context.args or len(context.args) == 0:
         update.message.reply_text(
@@ -291,6 +358,18 @@ def course_faq_command(update: Update, context: CallbackContext):
 
 def faq_command(update: Update, context: CallbackContext):
     """Handle the /faq command"""
+    user = update.effective_user
+    user_id = str(user.id)
+    
+    # Check if user is verified
+    if not is_user_verified(user_id):
+        verification_reminder = (
+            "⚠️ Please verify your SMU email before accessing FAQs.\n\n"
+            "Use the command: /verify your.name@smu.edu.sg"
+        )
+        update.message.reply_text(verification_reminder)
+        return
+    
     # Get FAQs
     faqs = get_all_faqs()
     
