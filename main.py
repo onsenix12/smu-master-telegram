@@ -5,7 +5,7 @@ from config import TELEGRAM_TOKEN
 from db.database import init_database
 from bot.handlers import (
     start_command, help_command, handle_message, 
-    verify_command, code_command, course_command, faq_command, reset_verification_command
+    verify_command, code_command, course_command, faq_command, course_faq_command, reset_verification_command
 )
 from knowledge.manager import load_courses_to_db
 from bot.staff_commands import add_faq_command, make_staff_command
@@ -46,6 +46,7 @@ def main():
     dispatcher.add_handler(CommandHandler("verify", verify_command))
     dispatcher.add_handler(CommandHandler("code", code_command))
     dispatcher.add_handler(CommandHandler("course", course_command))
+    dispatcher.add_handler(CommandHandler("course_faq", course_faq_command))
     dispatcher.add_handler(CommandHandler("add_faq", add_faq_command))
     dispatcher.add_handler(CommandHandler("make_staff", make_staff_command))
     dispatcher.add_handler(CommandHandler("faq", faq_command))
@@ -65,16 +66,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-def main():
-    # Initialize the database
-    init_database()
-    
-    # Load courses into database
-    load_courses_to_db()
-    
-    # Start the dashboard in a separate thread
-    dashboard_thread = threading.Thread(target=start_dashboard)
-    dashboard_thread.daemon = True  # This ensures the thread will exit when the main program exits
-    dashboard_thread.start()
-
