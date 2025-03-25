@@ -26,10 +26,11 @@ def send_verification_email(email, code):
         server.login(EMAIL_USER, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
-        return True
+        return True, None
     except Exception as e:
-        print(f"Error sending email: {str(e)}")
-        return False
+        error_message = f"Error sending email: {str(e)}"
+        print(f"Error sending email: {str(e)}")  # Keep the print for logging
+        return False, error_message
 
 def generate_verification_code(length=6):
     """Generate a random verification code"""
@@ -46,6 +47,10 @@ def start_verification(user_id, email):
     code = generate_verification_code()
     expires_at = int(time.time()) + VERIFICATION_TIMEOUT
     
+    # For development: always print the code to console
+    if DEV_MODE:
+        print(f"DEV MODE - Verification code for {email}: {code}")
+    
     # Store the code in the database
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
@@ -57,10 +62,10 @@ def start_verification(user_id, email):
         ''', (email, code, expires_at, user_id))
         
         # Send the verification email
-        email_sent = send_verification_email(email, code)
+        success, error_message = send_verification_email(email, code)
         
         # Provide feedback based on whether the email was sent
-        if email_sent:
+        if success:
             return True, "Verification code sent to your email. Please check your inbox."
         else:
             # Fallback to console output if email sending fails

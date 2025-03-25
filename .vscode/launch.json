@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "All Tests",
+        "type": "python",
+        "request": "launch",
+        "module": "pytest",
+        "args": [
+          "tests",
+          "-v"
+        ]
+      },
+      {
+        "name": "Integration Tests Only",
+        "type": "python",
+        "request": "launch",
+        "module": "pytest",
+        "args": [
+          "tests/integration",
+          "-v"
+        ]
+      },
+      {
+        "name": "Unit Tests Only",
+        "type": "python",
+        "request": "launch",
+        "module": "pytest",
+        "args": [
+          "tests/unit",
+          "-v"
+        ]
+      }
+    ]
+  }
