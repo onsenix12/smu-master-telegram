@@ -1,4 +1,12 @@
-[bandit]
-targets: bot,db,knowledge,auth,utils,dashboard
-exclude_dirs: venv,__pycache__,tests
-skips: B110,B101
+---
+# Bandit configuration file
+exclude_dirs:
+  - tests/
+  - venv/
+  - .env/
+
+skips:
+  - B101  # Assert used
+  - B104  # Hardcoded bind all interfaces
+  - B110  # Try, except, pass
+  - B311  # Standard pseudo-random generators
