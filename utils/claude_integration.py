@@ -26,7 +26,7 @@ def query_claude(question):
         response = requests.post(
             "https://api.anthropic.com/v1/messages",
             headers=headers,
-            json=data
+            json=data,
             timeout=60
         )
         
