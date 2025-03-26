@@ -1,2 +1,3 @@
-[bandit]
-skips = B110,B101,B311,B104
+---
+# Bandit configuration file
+skips: [B110, B101, B311, B104]
