@@ -44,5 +44,10 @@ jobs:
         echo "Tests passed successfully. Ready for deployment to Replit."
         echo "Please manually pull changes in your Replit project or set up Replit GitHub integration."
 
+    - name: Install security scanning tools
+      run: |
+        pip install bandit
+
     - name: Run Bandit security scan
-      run: bandit -r ./ --exclude ./venv --skip B101,B104,B311
+      run: |
+        bandit -r ./ --exclude ./venv --skip B101,B104,B311
