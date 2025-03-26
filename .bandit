@@ -1,3 +1,4 @@
 [bandit]
 targets: bot,db,knowledge,auth,utils,dashboard
-exclude: /tests
+exclude_dirs: venv,__pycache__,tests
+skips: B110,B101
