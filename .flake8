@@ -1,0 +1,3 @@
+[flake8]
+exclude = venv/,vendor/,__pycache__/,.git/
+ignore = F821
