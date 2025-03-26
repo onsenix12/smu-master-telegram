@@ -27,7 +27,7 @@ def query_claude(question):
             "https://api.anthropic.com/v1/messages",
             headers=headers,
             json=data
-            timeout=30
+            timeout=60
         )
         
         if response.status_code == 200:
