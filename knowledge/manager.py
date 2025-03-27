@@ -141,3 +141,15 @@ def add_faq(question, answer, added_by):
         ''', (question, answer, added_by))
         
         return True
+    
+def get_all_courses():
+    """Get all courses from the database"""
+    with DatabaseConnection() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM courses')
+        
+        courses = cursor.fetchall()
+        
+        # Convert to list of dictionaries
+        return [dict(course) for course in courses]
