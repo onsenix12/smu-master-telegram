@@ -1,12 +1,12 @@
-#bot
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from config import TELEGRAM_TOKEN
 from db.database import init_database
-from bot.handlers import (
-    start_command, help_command, handle_message, 
-    verify_command, code_command, course_command, faq_command, course_faq_command, reset_verification_command
-)
+from bot.handlers import (start_command, help_command, handle_message,
+                          verify_command, code_command, course_command,
+                          faq_command, course_faq_command,
+                          reset_verification_command)
 from knowledge.manager import load_courses_to_db
 from bot.staff_commands import add_faq_command, make_staff_command
 
@@ -14,11 +14,10 @@ from bot.staff_commands import add_faq_command, make_staff_command
 import threading
 from dashboard.app import start_dashboard
 
-
 # Enable logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main():
@@ -33,13 +32,13 @@ def main():
     dashboard_thread = threading.Thread(target=start_dashboard)
     dashboard_thread.daemon = True  # This ensures the thread will exit when the main program exits
     dashboard_thread.start()
-    
+
     # Create the Updater and pass it your bot's token
     updater = Updater(TELEGRAM_TOKEN)
-    
+
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
-    
+
     # Register command handlers
     dispatcher.add_handler(CommandHandler("start", start_command))
     dispatcher.add_handler(CommandHandler("help", help_command))
@@ -50,19 +49,20 @@ def main():
     dispatcher.add_handler(CommandHandler("add_faq", add_faq_command))
     dispatcher.add_handler(CommandHandler("make_staff", make_staff_command))
     dispatcher.add_handler(CommandHandler("faq", faq_command))
-    dispatcher.add_handler(CommandHandler("reset_verification", reset_verification_command))
-    
+    dispatcher.add_handler(
+        CommandHandler("reset_verification", reset_verification_command))
+
     # Regular message handler
-    dispatcher.add_handler(MessageHandler(
-        Filters.text & ~Filters.command, handle_message
-    ))
-    
+    dispatcher.add_handler(
+        MessageHandler(Filters.text & ~Filters.command, handle_message))
+
     # Start the Bot
     updater.start_polling()
     logger.info("Bot started")
-    
+
     # Run the bot until you press Ctrl-C
     updater.idle()
+
 
 if __name__ == "__main__":
     main()
