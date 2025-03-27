@@ -5,7 +5,7 @@ from auth.verification import start_verification, verify_code, is_user_verified
 from knowledge.manager import get_course_info, search_courses
 from utils.claude_integration import query_claude
 from knowledge.manager import search_courses, get_all_courses
-from db.database import get_connection
+# Removed unused get_connection import
 from knowledge.manager import get_all_faqs
 from db.connection import DatabaseConnection
 from utils.decorators import require_verification
@@ -66,14 +66,33 @@ def handle_message(update: Update, context: CallbackContext):
     user_id = str(user.id)
     message_text = update.message.text.strip()
     
-    # Check if this is a question about course FAQs
-    faq_keywords = ['faq', 'question', 'answer', 'frequently asked']
-    course_pattern = r'IS\d{3}'
+    # First check if user is asking about available courses
+    if check_available_courses_query(update, user_id, message_text):
+        return
+        
+    # Check if asking about course FAQs
+    if check_course_faq_query(update, user_id, message_text):
+        return
+        
+    # Check for direct course matching
+    if check_direct_course_match(update, user_id, message_text):
+        return
     
-    # Extract potential course codes (like IS621)
-    course_codes = re.findall(course_pattern, message_text.upper())
+    # Check for definition or term explanation
+    if check_definition_question(update, user_id, message_text):
+        return
     
-    # Check if asking about available courses
+    # General search for course-related content
+    response = search_or_query_claude(message_text)
+    
+    # Save the conversation
+    save_conversation(user_id, message_text, response)
+    
+    # Use HTML parse mode for consistency
+    update.message.reply_text(response, parse_mode='HTML')
+
+def check_available_courses_query(update, user_id, message_text):
+    """Check if the user is asking about available courses"""
     courses_keywords = ['what courses', 'available courses', 'courses available', 'course list', 'list of courses']
     is_asking_for_courses = any(keyword.lower() in message_text.lower() for keyword in courses_keywords)
 
@@ -88,8 +107,17 @@ def handle_message(update: Update, context: CallbackContext):
             response = f"Here are the available courses:\n\n{course_info}"
             save_conversation(user_id, message_text, response)
             update.message.reply_text(response, parse_mode='HTML')
-            return
+            return True
+    return False
 
+def check_course_faq_query(update, user_id, message_text):
+    """Check if the user is asking about course FAQs"""
+    faq_keywords = ['faq', 'question', 'answer', 'frequently asked']
+    course_pattern = r'IS\d{3}'
+    
+    # Extract potential course codes (like IS621)
+    course_codes = re.findall(course_pattern, message_text.upper())
+    
     # Check if the message is asking about FAQs for a course
     is_faq_question = any(keyword.lower() in message_text.lower() for keyword in faq_keywords) and course_codes
     
@@ -101,12 +129,12 @@ def handle_message(update: Update, context: CallbackContext):
         
         if not course:
             update.message.reply_text(f"Course {course_code} not found.")
-            return
+            return True
         
         # Check if course has FAQs
         if 'course_faqs' not in course or not course['course_faqs']:
             update.message.reply_text(f"No FAQs available for {course_code}.")
-            return
+            return True
         
         # Format FAQs
         faqs = course['course_faqs']
@@ -124,10 +152,10 @@ def handle_message(update: Update, context: CallbackContext):
                     
                     # Save the conversation
                     save_conversation(user_id, message_text, response)
-                    return
+                    return True
                 else:
                     update.message.reply_text(f"FAQ #{faq_idx+1} not found for {course_code}.")
-                    return
+                    return True
             except ValueError:
                 pass
         
@@ -141,12 +169,14 @@ def handle_message(update: Update, context: CallbackContext):
         save_conversation(user_id, message_text, response)
         
         update.message.reply_text(response, parse_mode='HTML')
-        return
+        return True
     
-    # Extract key terms for course search
+    return False
+
+def check_direct_course_match(update, user_id, message_text):
+    """Check for direct course name references"""
     key_terms = message_text.lower()
     
-    # Check for direct course name references
     course_map = {
         "cloud computing": "IS622",
         "agile": "IS621",
@@ -157,7 +187,7 @@ def handle_message(update: Update, context: CallbackContext):
         "data analytics": "IS625"
     }
 
-    # Try direct course name matching first
+    # Try direct course name matching
     course_code = None
     for course_term, code in course_map.items():
         if course_term.lower() in key_terms:
@@ -176,11 +206,50 @@ def handle_message(update: Update, context: CallbackContext):
             response = f"Here's information about the {course['title']} course:\n\n{course_info}"
             save_conversation(user_id, message_text, response)
             update.message.reply_text(response, parse_mode='HTML')
-            return
+            return True
     
+    return False
+
+def check_definition_question(update, user_id, message_text):
+    """Check for definition or explanation questions"""
+    is_definition_question = re.search(r'^what\s+is\s+', message_text.lower()) or re.search(r'^explain\s+', message_text.lower()) or re.search(r'^define\s+', message_text.lower())
+    
+    if is_definition_question:
+        # Try to find a matching FAQ first
+        all_faqs = get_all_faqs()
+        search_term = message_text.lower().replace('what is', '').replace('explain', '').replace('define', '').strip()
+        
+        # Remove question marks and common words
+        search_term = search_term.replace('?', '').strip()
+        
+        matched_faq = None
+        for faq in all_faqs:
+            # Simple matching - could be improved with NLP
+            if search_term in faq['question'].lower():
+                matched_faq = faq
+                break
+        
+        if matched_faq:
+            # If we found a matching FAQ, use that
+            response = f"❓ <b>Question:</b> {matched_faq['question']}\n\n" \
+                      f"✅ <b>Answer:</b> {matched_faq['answer']}"
+        else:
+            # Otherwise, use Claude for general knowledge
+            response = query_claude(message_text)
+            
+        save_conversation(user_id, message_text, response)
+        update.message.reply_text(response, parse_mode='HTML')
+        return True
+        
+    return False
+
+def search_or_query_claude(message_text):
+    """Search for course content or use Claude for general queries"""
     # Clean search terms by removing common words
     common_words = ["tell", "me", "about", "the", "what", "is", "course", "?"]
+    key_terms = message_text.lower()
     clean_query = key_terms
+    
     for word in common_words:
         clean_query = clean_query.replace(word, " ").strip()
     
@@ -197,19 +266,10 @@ def handle_message(update: Update, context: CallbackContext):
                 for course in course_results
             ])
             
-            response = f"Here's what I found about your question:\n\n{course_info}"
-        else:
-            # Use Claude for general knowledge questions
-            response = query_claude(message_text)
-    else:
-        # Use Claude for general knowledge questions
-        response = query_claude(message_text)
+            return f"Here's what I found about your question:\n\n{course_info}"
     
-    # Save the conversation
-    save_conversation(user_id, message_text, response)
-    
-    # Use HTML parse mode for consistency
-    update.message.reply_text(response, parse_mode='HTML')
+    # Use Claude for general knowledge questions
+    return query_claude(message_text)
 
 def verify_command(update: Update, context: CallbackContext):
     """Handle the /verify command"""
