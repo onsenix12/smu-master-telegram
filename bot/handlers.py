@@ -73,6 +73,24 @@ def handle_message(update: Update, context: CallbackContext):
     # Extract potential course codes (like IS621)
     course_codes = re.findall(course_pattern, message_text.upper())
     
+    # Check if asking about available courses
+    courses_keywords = ['what courses', 'available courses', 'courses available', 'course list', 'list of courses']
+    is_asking_for_courses = any(keyword.lower() in message_text.lower() for keyword in courses_keywords)
+
+    if is_asking_for_courses:
+        from knowledge.manager import get_all_courses
+        courses = get_all_courses()
+        if courses:
+            course_info = "\n\n".join([
+                f"📚 <b>{course['course_code']}: {course['title']}</b>\n"
+                f"👨‍🏫 Instructor: {course['instructor']}"
+                for course in courses
+            ])
+            response = f"Here are the available courses:\n\n{course_info}"
+            save_conversation(user_id, message_text, response)
+            update.message.reply_text(response, parse_mode='HTML')
+            return
+
     # Check if the message is asking about FAQs for a course
     is_faq_question = any(keyword.lower() in message_text.lower() for keyword in faq_keywords) and course_codes
     
