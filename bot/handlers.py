@@ -4,11 +4,12 @@ from db.database import save_user, save_conversation
 from auth.verification import start_verification, verify_code, is_user_verified
 from knowledge.manager import get_course_info, search_courses
 from utils.claude_integration import query_claude
-from knowledge.manager import search_courses
+from knowledge.manager import search_courses, get_all_courses
 from db.database import get_connection
 from knowledge.manager import get_all_faqs
 from db.connection import DatabaseConnection
 from utils.decorators import require_verification
+import re
 
 def start_command(update: Update, context: CallbackContext):
     """Handle the /start command"""
@@ -69,7 +70,6 @@ def handle_message(update: Update, context: CallbackContext):
     faq_keywords = ['faq', 'question', 'answer', 'frequently asked']
     course_pattern = r'IS\d{3}'
     
-    import re
     # Extract potential course codes (like IS621)
     course_codes = re.findall(course_pattern, message_text.upper())
     
@@ -78,7 +78,6 @@ def handle_message(update: Update, context: CallbackContext):
     is_asking_for_courses = any(keyword.lower() in message_text.lower() for keyword in courses_keywords)
 
     if is_asking_for_courses:
-        from knowledge.manager import get_all_courses
         courses = get_all_courses()
         if courses:
             course_info = "\n\n".join([
@@ -144,19 +143,64 @@ def handle_message(update: Update, context: CallbackContext):
         update.message.reply_text(response, parse_mode='HTML')
         return
     
-    # Check if this is a course-related question (non-FAQ)
-    course_results = search_courses(message_text)
+    # Extract key terms for course search
+    key_terms = message_text.lower()
     
-    if course_results:
-        # Use local knowledge for course-related questions
-        course_info = "\n\n".join([
-            f"📚 <b>{course['course_code']}: {course['title']}</b>\n"
-            f"👨‍🏫 Instructor: {course['instructor']}\n"
-            f"📝 Description: {course['description']}"
-            for course in course_results
-        ])
+    # Check for direct course name references
+    course_map = {
+        "cloud computing": "IS622",
+        "agile": "IS621",
+        "devsecops": "IS621", 
+        "ai and machine learning": "IS623",
+        "machine learning": "IS623",
+        "cybersecurity": "IS624",
+        "data analytics": "IS625"
+    }
+
+    # Try direct course name matching first
+    course_code = None
+    for course_term, code in course_map.items():
+        if course_term.lower() in key_terms:
+            course_code = code
+            break
+
+    # If we have a direct course match, get the full course info
+    if course_code:
+        course = get_course_info(course_code)
+        if course:
+            course_info = (
+                f"📚 <b>{course['course_code']}: {course['title']}</b>\n"
+                f"👨‍🏫 Instructor: {course['instructor']}\n"
+                f"📝 Description: {course['description']}"
+            )
+            response = f"Here's information about the {course['title']} course:\n\n{course_info}"
+            save_conversation(user_id, message_text, response)
+            update.message.reply_text(response, parse_mode='HTML')
+            return
+    
+    # Clean search terms by removing common words
+    common_words = ["tell", "me", "about", "the", "what", "is", "course", "?"]
+    clean_query = key_terms
+    for word in common_words:
+        clean_query = clean_query.replace(word, " ").strip()
+    
+    # If we still have terms to search
+    if clean_query:
+        course_results = search_courses(clean_query)
         
-        response = f"Here's what I found about your question:\n\n{course_info}"
+        if course_results:
+            # Use local knowledge for course-related questions
+            course_info = "\n\n".join([
+                f"📚 <b>{course['course_code']}: {course['title']}</b>\n"
+                f"👨‍🏫 Instructor: {course['instructor']}\n"
+                f"📝 Description: {course['description']}"
+                for course in course_results
+            ])
+            
+            response = f"Here's what I found about your question:\n\n{course_info}"
+        else:
+            # Use Claude for general knowledge questions
+            response = query_claude(message_text)
     else:
         # Use Claude for general knowledge questions
         response = query_claude(message_text)
@@ -346,6 +390,7 @@ def faq_command(update: Update, context: CallbackContext):
     
     # Get specific FAQ if number provided
     if context.args and len(context.args) > 0:
+        # Check if argument is a number for specific FAQ
         try:
             faq_idx = int(context.args[0]) - 1
             if 0 <= faq_idx < len(faqs):
@@ -358,13 +403,44 @@ def faq_command(update: Update, context: CallbackContext):
                 update.message.reply_text(f"FAQ #{faq_idx+1} not found.")
                 return
         except ValueError:
+            # Not a number, check if it's a page command
             pass
     
-    # Show list of FAQs
-    response = "📋 <b>Available FAQs:</b>\n\n"
-    for i, faq in enumerate(faqs):
-        response += f"{i+1}. {faq['question']}\n"
-    response += "\nUse /faq [number] to see a specific answer."
+    # Default page is 1
+    page = 1
+    # Check if a page number was provided (format: /faq page 2)
+    if len(context.args) >= 2 and context.args[0].lower() == 'page':
+        try:
+            page = int(context.args[1])
+        except ValueError:
+            pass
+    
+    # Items per page
+    items_per_page = 10
+    
+    # Calculate total pages
+    total_pages = (len(faqs) + items_per_page - 1) // items_per_page
+    
+    # Ensure page is within valid range
+    page = max(1, min(page, total_pages))
+    
+    # Calculate slice indices
+    start_idx = (page - 1) * items_per_page
+    end_idx = min(start_idx + items_per_page, len(faqs))
+    
+    # Get FAQs for the current page
+    current_faqs = faqs[start_idx:end_idx]
+    
+    # Show list of FAQs for the current page
+    response = f"📋 <b>Available FAQs (Page {page}/{total_pages}):</b>\n\n"
+    for i, faq in enumerate(current_faqs):
+        idx = start_idx + i + 1
+        response += f"{idx}. {faq['question']}\n"
+    
+    # Add navigation instructions
+    response += f"\nUse /faq [number] to see a specific answer."
+    if total_pages > 1:
+        response += f"\nUse /faq page [number] to navigate between pages."
     
     update.message.reply_text(response, parse_mode='HTML')
 

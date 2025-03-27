@@ -107,10 +107,10 @@ def search_courses(query):
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
         
-        # Search in title and description
+        # Make search case-insensitive by using LOWER()
         cursor.execute('''
         SELECT * FROM courses 
-        WHERE title LIKE ? OR description LIKE ?
+        WHERE LOWER(title) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)
         ''', (f'%{query}%', f'%{query}%'))
         
         courses = cursor.fetchall()

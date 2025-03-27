@@ -3,7 +3,7 @@
         "course_code": "IS621",
         "title": "Agile and DevSecOps",
         "description": "A comprehensive course exploring agile methodologies, DevSecOps practices, and modern software development lifecycles.",
-        "instructor": "Dr. Smith",
+        "instructor": "Dr. Don",
         "credits": 3,
         "prerequisites": ["Basic software development knowledge"],
         "syllabus": [
